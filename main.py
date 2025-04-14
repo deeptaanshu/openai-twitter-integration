@@ -28,7 +28,7 @@ def ask_chatgpt(question, api_key):
     """
     openai.api_key = api_key
     response = openai.ChatCompletion.create(
-        model="gpt-4o",   # or another model if you prefer
+        model="gpt-4.5-preview",   # or another model if you prefer
         messages=[
             {"role": "user", "content": question}
         ],
@@ -57,7 +57,8 @@ def post_to_twitter(tweet_text, twitter_creds):
 
 def main():
     # Load all API credentials from the file
-    credentials = load_credentials("/Users/deeptaanshukumar/keys.json")
+    # CHANGE STRING TO THE LOCATION OF YOUR FILE WITH THE KEYS
+    credentials = load_credentials("/Users/deeptaanshukumar/keys_isp.json")
 
     # Extract the OpenAI API key
     chatgpt_api_key = credentials["openai_api_key"]
