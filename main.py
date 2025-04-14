@@ -22,7 +22,7 @@ def get_random_question():
     ]
     return random.choice(questions)
 
-def ask_chatgpt(question, api_key):
+def ask_chatgpt_test(question, api_key):
     """
     Uses OpenAI's ChatCompletion API to get an answer to the provided question.
     """
@@ -31,6 +31,69 @@ def ask_chatgpt(question, api_key):
         model="gpt-4.5-preview",   # or another model if you prefer
         messages=[
             {"role": "user", "content": question}
+        ],
+        temperature=0.7  # Adjust the creativity of the answer if desired
+    )
+    # Extracting the answer text from the response
+    answer = response.choices[0].message['content'].strip()
+    return answer
+
+def chatgpt_short_answer(api_key):
+    """
+    This prompt will focus on a post related to Lithium in approximately 150 characters.
+    """
+    openai.api_key = api_key
+    response = openai.ChatCompletion.create(
+        model="gpt-4.5-preview",
+        messages=[
+            {"role": "user", "content": "Assume the role of a Lithium industry professional and please create an informative and attention-grabbing post for Twitter with a length of exactly 150 characters about the latest developments in the field of Lithium, such as Lithium mining, Lithium processing, and Lithium sales."}
+        ],
+        temperature=0.7  # Adjust the creativity of the answer if desired
+    )
+    # Extracting the answer text from the response
+    answer = response.choices[0].message['content'].strip()
+    return answer
+
+def chatgpt_long_answer(api_key):
+    """
+    This prompt will focus on a post related to Lithium in approximately 250 characters.
+    """
+    openai.api_key = api_key
+    response = openai.ChatCompletion.create(
+        model="gpt-4.5-preview",
+        messages=[
+            {"role": "user", "content": "Assume the role of a Lithium industry professional and please create an informative and attention-grabbing post for Twitter with a length of exactly 250 characters about the latest developments in the field of Lithium, such as Lithium mining, Lithium processing, and Lithium sales."}
+        ],
+        temperature=0.7  # Adjust the creativity of the answer if desired
+    )
+    # Extracting the answer text from the response
+    answer = response.choices[0].message['content'].strip()
+    return answer
+
+def chatgpt_link_answer(api_key):
+    """
+    This prompt will focus on a post that contains a link to an article, potentially with an embedded image as well.
+    """
+    openai.api_key = api_key
+    response = openai.ChatCompletion.create(
+        model="gpt-4o-search-preview", # need to use this model since 4.5-preview api doesn't allow for searching web for results
+        messages=[
+            {"role": "user", "content": "Assume you are the Head of Social Media of a Lithium company and are instructed to only post a working URL to a real article that is less than 200 characters long and discusses the latest developments in the field of Lithium, such as Lithium mining, Lithium processing, and Lithium sales."}
+        ],
+    )
+    # Extracting the answer text from the response
+    answer = response.choices[0].message['content'].strip()
+    return answer
+
+def chatgpt_tech_answer(api_key):
+    """
+    This model will serve as an experimental "control" and will post about any Tech-related topic
+    """
+    openai.api_key = api_key
+    response = openai.ChatCompletion.create(
+        model="gpt-4.5-preview",   # or another model if you prefer
+        messages=[
+            {"role": "user", "content": "Assume the role of a Tech industry professional and please create an informative and attention-grabbing post for Twitter with a length of exactly 250 characters about the latest developments in the field of Tech."}
         ],
         temperature=0.7  # Adjust the creativity of the answer if desired
     )
@@ -64,16 +127,32 @@ def main():
     chatgpt_api_key = credentials["openai_api_key"]
     print("Got ChatGPT credentials")
 
-    # Get a random question from our predefined list
-    question = get_random_question()
-    print(f"Random Question: {question}")
+#     # Get a random question from our predefined list
+#     question = get_random_question()
+#     print(f"Random Question: {question}")
+#
+#     # Ask ChatGPT the random question
+#     answer = ask_chatgpt(question, chatgpt_api_key)
+#     print(f"ChatGPT's Response: {answer}")
 
-    # Ask ChatGPT the random question
-    answer = ask_chatgpt(question, chatgpt_api_key)
+#     # Expect a 150-character response
+#     answer = chatgpt_short_answer(chatgpt_api_key)
+#     print(f"ChatGPT's Response: {answer}")
+
+#     # Expect a 250-character response
+#     answer = chatgpt_long_answer(chatgpt_api_key)
+#     print(f"ChatGPT's Response: {answer}")
+
+#     # Expect a response with an article link, and potentially and embedded image
+#     answer = chatgpt_link_answer(chatgpt_api_key)
+#     print(f"ChatGPT's Response: {answer}")
+
+    # Expect a response about Tech, will serve as experiment control
+    answer = chatgpt_tech_answer(chatgpt_api_key)
     print(f"ChatGPT's Response: {answer}")
 
-    # Combine the question and answer to post a tweet
-    tweet_text = f"Q: {question}\nA: {answer}"
+    # Use the ChatGPT answer to post a tweet
+    tweet_text = answer
 
     # Post the tweet using Twitter API keys from the same file
     twitter_response = post_to_twitter(tweet_text, credentials)
