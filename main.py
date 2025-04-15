@@ -2,6 +2,8 @@ import json
 import random
 import openai
 import tweepy
+import time
+import threading
 
 def load_credentials(file_path='keys.json'):
     """
@@ -10,33 +12,6 @@ def load_credentials(file_path='keys.json'):
     with open(file_path, 'r') as f:
         credentials = json.load(f)
     return credentials
-
-def get_random_question():
-    """
-    Returns a random question from a predefined list.
-    You can add as many questions as you like.
-    """
-    questions = [
-        "What is the meaning of life, please answer in 30 characters or less?",
-        "If you could travel anywhere, where would you go, please answer in 30 characters or less?",
-    ]
-    return random.choice(questions)
-
-def ask_chatgpt_test(question, api_key):
-    """
-    Uses OpenAI's ChatCompletion API to get an answer to the provided question.
-    """
-    openai.api_key = api_key
-    response = openai.ChatCompletion.create(
-        model="gpt-4.5-preview",   # or another model if you prefer
-        messages=[
-            {"role": "user", "content": question}
-        ],
-        temperature=0.7  # Adjust the creativity of the answer if desired
-    )
-    # Extracting the answer text from the response
-    answer = response.choices[0].message['content'].strip()
-    return answer
 
 def chatgpt_short_answer(api_key):
     """
@@ -89,9 +64,11 @@ def chatgpt_tech_answer(api_key):
     """
     This model will serve as an experimental "control" and will post about any Tech-related topic
     """
+    credentials = load_credentials("/Users/deeptaanshukumar/keys_isp.json")
+
     openai.api_key = api_key
     response = openai.ChatCompletion.create(
-        model="gpt-4.5-preview",   # or another model if you prefer
+        model="gpt-4.1",   # or another model if you prefer
         messages=[
             {"role": "user", "content": "Assume the role of a Tech industry professional and please create an informative and attention-grabbing post for Twitter with a length of exactly 250 characters about the latest developments in the field of Tech."}
         ],
@@ -99,6 +76,10 @@ def chatgpt_tech_answer(api_key):
     )
     # Extracting the answer text from the response
     answer = response.choices[0].message['content'].strip()
+
+    twitter_response = post_to_twitter(answer, credentials)
+    print("Tweet posted successfully:")
+    print(twitter_response)
     return answer
 
 def post_to_twitter(tweet_text, twitter_creds):
@@ -126,38 +107,74 @@ def main():
     # Extract the OpenAI API key
     chatgpt_api_key = credentials["openai_api_key"]
     print("Got ChatGPT credentials")
+    time.sleep(180)
 
-#     # Get a random question from our predefined list
-#     question = get_random_question()
-#     print(f"Random Question: {question}")
-#
-#     # Ask ChatGPT the random question
-#     answer = ask_chatgpt(question, chatgpt_api_key)
-#     print(f"ChatGPT's Response: {answer}")
-
-#     # Expect a 150-character response
-#     answer = chatgpt_short_answer(chatgpt_api_key)
-#     print(f"ChatGPT's Response: {answer}")
-
-#     # Expect a 250-character response
-#     answer = chatgpt_long_answer(chatgpt_api_key)
-#     print(f"ChatGPT's Response: {answer}")
-
-#     # Expect a response with an article link, and potentially and embedded image
-#     answer = chatgpt_link_answer(chatgpt_api_key)
-#     print(f"ChatGPT's Response: {answer}")
-
-    # Expect a response about Tech, will serve as experiment control
-    answer = chatgpt_tech_answer(chatgpt_api_key)
+    # Expect a 150-character response
+    answer = chatgpt_short_answer(chatgpt_api_key)
     print(f"ChatGPT's Response: {answer}")
+    twitter_response = post_to_twitter(answer, credentials)
+    print("Tweet posted successfully:")
+    time.sleep(180)
+
+    # Expect a 250-character response
+    answer = chatgpt_long_answer(chatgpt_api_key)
+    print(f"ChatGPT's Response: {answer}")
+    twitter_response = post_to_twitter(answer, credentials)
+    print("Tweet posted successfully:")
+    time.sleep(180)
+
+    # Expect a response with an article link, and potentially and embedded image
+    answer = chatgpt_link_answer(chatgpt_api_key)
+    print(f"ChatGPT's Response: {answer}")
+    twitter_response = post_to_twitter(answer, credentials)
+    print("Tweet posted successfully:")
+    time.sleep(180)
 
     # Use the ChatGPT answer to post a tweet
     tweet_text = answer
 
     # Post the tweet using Twitter API keys from the same file
-    twitter_response = post_to_twitter(tweet_text, credentials)
-    print("Tweet posted successfully:")
-    print(twitter_response)
+
+
+def print_epoch():
+    while True:
+        # Print the current epoch timestamp every 15 seconds
+        print(f"Epoch timestamp: {int(time.time())}")
+        time.sleep(15)
+
+def call_function_every_4_hours():
+    counter = 0
+    while True:
+        print(f"main() called at epoch: {int(time.time())}")
+        main()
+        answer = chatgpt_tech_answer(chatgpt_api_key)
+        print(f"ChatGPT's Response: {answer}")
+
+        # Sleep for 4 hours (4*3600 seconds)
+        if counter % 3 == 0:
+            # Expect a response about Tech, will serve as experiment control
+            answer = chatgpt_tech_answer(chatgpt_api_key)
+            print(f"ChatGPT's Response: {answer}")
+        time.sleep(4 * 3600)
+        counter = counter + 1
 
 if __name__ == "__main__":
-    main()
+    # Create two threads: one for printing the epoch timestamp,
+    # and another for calling the function every 4 hours.
+    epoch_thread = threading.Thread(target=print_epoch)
+    function_thread = threading.Thread(target=call_function_every_4_hours)
+
+    # Optionally, set daemon=True if you want the threads to exit when the main thread terminates.
+    epoch_thread.daemon = True
+    function_thread.daemon = True
+
+    # Start the threads
+    epoch_thread.start()
+    function_thread.start()
+
+    # Keep the main thread alive indefinitely. This loop can be adjusted if you prefer another exit strategy.
+    try:
+        while True:
+            time.sleep(1)
+    except KeyboardInterrupt:
+        print("\nScript terminated by user.")
