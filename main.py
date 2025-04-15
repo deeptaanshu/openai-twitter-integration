@@ -155,7 +155,7 @@ def call_function_every_4_hours():
             # Expect a response about Tech, will serve as experiment control
             answer = chatgpt_tech_answer(chatgpt_api_key)
             print(f"ChatGPT's Response: {answer}")
-        time.sleep(4 * 3600)
+        time.sleep(6 * 3600)
         counter = counter + 1
 
 if __name__ == "__main__":
