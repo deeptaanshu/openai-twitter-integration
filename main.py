@@ -19,7 +19,7 @@ def chatgpt_short_answer(api_key):
     """
     openai.api_key = api_key
     response = openai.ChatCompletion.create(
-        model="gpt-4.5-preview",
+        model="gpt-4.1",
         messages=[
             {"role": "user", "content": "Assume the role of a Lithium industry professional and please create an informative and attention-grabbing post for Twitter with a length of exactly 150 characters about the latest developments in the field of Lithium, such as Lithium mining, Lithium processing, and Lithium sales."}
         ],
@@ -35,7 +35,7 @@ def chatgpt_long_answer(api_key):
     """
     openai.api_key = api_key
     response = openai.ChatCompletion.create(
-        model="gpt-4.5-preview",
+        model="gpt-4.1",
         messages=[
             {"role": "user", "content": "Assume the role of a Lithium industry professional and please create an informative and attention-grabbing post for Twitter with a length of exactly 250 characters about the latest developments in the field of Lithium, such as Lithium mining, Lithium processing, and Lithium sales."}
         ],
