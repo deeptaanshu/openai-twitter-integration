@@ -99,7 +99,7 @@ def post_to_twitter(tweet_text, twitter_creds):
     tweet_response = client.create_tweet(text=tweet_text)
     return tweet_response
 
-def main():
+def run_experiments():
     # Load all API credentials from the file
     # CHANGE STRING TO THE LOCATION OF YOUR FILE WITH THE KEYS
     credentials = load_credentials("/Users/deeptaanshukumar/keys_isp.json")
@@ -130,23 +130,16 @@ def main():
     print("Tweet posted successfully:")
     time.sleep(180)
 
-    # Use the ChatGPT answer to post a tweet
-    tweet_text = answer
-
-    # Post the tweet using Twitter API keys from the same file
-
-
-def print_epoch():
-    while True:
-        # Print the current epoch timestamp every 15 seconds
-        print(f"Epoch timestamp: {int(time.time())}")
-        time.sleep(15)
-
-def call_function_every_4_hours():
+if __name__ == "__main__":
     counter = 0
     while True:
-        print(f"main() called at epoch: {int(time.time())}")
-        main()
+        print(f"run_experiments() called at epoch: {int(time.time())}")
+        run_experiments()
+
+        credentials = load_credentials("/Users/deeptaanshukumar/keys_isp.json")
+        # Extract the OpenAI API key
+        chatgpt_api_key = credentials["openai_api_key"]
+
         answer = chatgpt_tech_answer(chatgpt_api_key)
         print(f"ChatGPT's Response: {answer}")
 
@@ -157,24 +150,3 @@ def call_function_every_4_hours():
             print(f"ChatGPT's Response: {answer}")
         time.sleep(6 * 3600)
         counter = counter + 1
-
-if __name__ == "__main__":
-    # Create two threads: one for printing the epoch timestamp,
-    # and another for calling the function every 4 hours.
-    epoch_thread = threading.Thread(target=print_epoch)
-    function_thread = threading.Thread(target=call_function_every_4_hours)
-
-    # Optionally, set daemon=True if you want the threads to exit when the main thread terminates.
-    epoch_thread.daemon = True
-    function_thread.daemon = True
-
-    # Start the threads
-    epoch_thread.start()
-    function_thread.start()
-
-    # Keep the main thread alive indefinitely. This loop can be adjusted if you prefer another exit strategy.
-    try:
-        while True:
-            time.sleep(1)
-    except KeyboardInterrupt:
-        print("\nScript terminated by user.")
