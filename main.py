@@ -136,16 +136,12 @@ if __name__ == "__main__":
         print(f"run_experiments() called at epoch: {int(time.time())}")
         run_experiments()
 
-        credentials = load_credentials("/Users/deeptaanshukumar/keys_isp.json")
-        # Extract the OpenAI API key
-        chatgpt_api_key = credentials["openai_api_key"]
-
-        answer = chatgpt_tech_answer(chatgpt_api_key)
-        print(f"ChatGPT's Response: {answer}")
-
         # Sleep for 4 hours (4*3600 seconds)
         if counter % 3 == 0:
             # Expect a response about Tech, will serve as experiment control
+            credentials = load_credentials("/Users/deeptaanshukumar/keys_isp.json")
+            # Extract the OpenAI API key
+            chatgpt_api_key = credentials["openai_api_key"]
             answer = chatgpt_tech_answer(chatgpt_api_key)
             print(f"ChatGPT's Response: {answer}")
         time.sleep(6 * 3600)
